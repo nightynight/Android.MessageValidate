@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Android.messagevalidate by nightynight</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Android.messagevalidate</h1>
+      <h2 class="project-tagline">Android短信验证</h2>
+      <a href="https://github.com/nightynight/Android.MessageValidate" class="btn">View on GitHub</a>
+      <a href="https://github.com/nightynight/Android.MessageValidate/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/nightynight/Android.MessageValidate/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h4>
+<a id="本文介绍如何使用android短信验证进行注册和登录这里使用mob移动开发者服务平台" class="anchor" href="#%E6%9C%AC%E6%96%87%E4%BB%8B%E7%BB%8D%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8android%E7%9F%AD%E4%BF%A1%E9%AA%8C%E8%AF%81%E8%BF%9B%E8%A1%8C%E6%B3%A8%E5%86%8C%E5%92%8C%E7%99%BB%E5%BD%95%E8%BF%99%E9%87%8C%E4%BD%BF%E7%94%A8mob%E7%A7%BB%E5%8A%A8%E5%BC%80%E5%8F%91%E8%80%85%E6%9C%8D%E5%8A%A1%E5%B9%B3%E5%8F%B0" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>本文介绍如何使用Android短信验证进行注册和登录，这里使用mob移动开发者服务平台。</h4>
+
+<p>使用mob做短信验证的步骤：</p>
+
+<h5>
+<a id="1到mob官网新建应用得到appkey和appsecret" class="anchor" href="#1%E5%88%B0mob%E5%AE%98%E7%BD%91%E6%96%B0%E5%BB%BA%E5%BA%94%E7%94%A8%E5%BE%97%E5%88%B0appkey%E5%92%8Cappsecret" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>1.到mob官网新建应用，得到AppKey和AppSecret</h5>
+
+<h5>
+<a id="2下载sdk" class="anchor" href="#2%E4%B8%8B%E8%BD%BDsdk" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>2.下载SDK</h5>
+
+<h5>
+<a id="3导入sdk" class="anchor" href="#3%E5%AF%BC%E5%85%A5sdk" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>3.导入SDK</h5>
+
+<h5>
+<a id="4使用smssdk" class="anchor" href="#4%E4%BD%BF%E7%94%A8smssdk" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>4.使用SMSSDK</h5>
+
+<p>前三步这里不展开，官网说的很清楚 <a href="http://wiki.mob.com/android-%E7%9F%AD%E4%BF%A1sdk%E9%9B%86%E6%88%90%E6%96%87%E6%A1%A3/">http://wiki.mob.com/android-短信sdk集成文档/</a></p>
+
+<h4>
+<a id="这里主要讲如何使用smssdk短信验证进行注册和登录" class="anchor" href="#%E8%BF%99%E9%87%8C%E4%B8%BB%E8%A6%81%E8%AE%B2%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8smssdk%E7%9F%AD%E4%BF%A1%E9%AA%8C%E8%AF%81%E8%BF%9B%E8%A1%8C%E6%B3%A8%E5%86%8C%E5%92%8C%E7%99%BB%E5%BD%95" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>这里主要讲如何使用SMSSDK短信验证进行注册和登录。</h4>
+
+<p>Demo中用到的常量：            </p>
+
+<pre><code>public class Const {
+    final static String APPKEY="上面建的应用程序的AppKey";
+    final static String APPSECRET="上面建的应用程序的AppSecret";
+    final static String CHINA="86";
+}
+</code></pre>
+
+<h2>
+<a id="一-使用smssdkgui进行短信验证注册" class="anchor" href="#%E4%B8%80-%E4%BD%BF%E7%94%A8smssdkgui%E8%BF%9B%E8%A1%8C%E7%9F%AD%E4%BF%A1%E9%AA%8C%E8%AF%81%E6%B3%A8%E5%86%8C" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>一. 使用SMSSDKGUI进行短信验证注册</h2>
+
+<p>布局文件只有一个按钮，就不展示代码了。
+先在manifest中加入相关权限：</p>
+
+<pre><code>&lt;uses-permission android:name="android.permission.READ_CONTACTS" /&gt;
+&lt;uses-permission android:name="android.permission.READ_PHONE_STATE" /&gt;
+&lt;uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /&gt;
+&lt;uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /&gt;
+&lt;uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /&gt;
+&lt;uses-permission android:name="android.permission.INTERNET" /&gt;
+&lt;uses-permission android:name="android.permission.RECEIVE_SMS" /&gt;
+&lt;uses-permission android:name="android.permission.READ_SMS" /&gt;
+&lt;uses-permission android:name="android.permission.GET_TASKS" /&gt;
+&lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /&gt;
+</code></pre>
+
+<p>还要加入一个Activity，是SDK中封装好的，用来进行短信验证：</p>
+
+<pre><code>&lt;activity
+    android:name="com.mob.tools.MobUIShell"
+    android:theme="@android:style/Theme.Translucent.NoTitleBar"
+    android:configChanges="keyboardHidden|orientation|screenSize"
+    android:windowSoftInputMode="stateHidden|adjustResize"/&gt;
+</code></pre>
+
+<p>接下来在onCreate方法中加入以下代码：</p>
+
+<pre><code>//初始化
+SMSSDK.initSDK(this, Const.APPKEY, Const.APPSECRET);
+Button button=(Button)findViewById(R.id.button);
+button.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View v) {
+        //注册手机号
+        RegisterPage registerPage=new RegisterPage();
+        //注册回调事件
+        registerPage.setRegisterCallback(new EventHandler(){
+            //事件完成后调用
+            @Override
+            public void afterEvent(int event, int result, Object data) {
+            //判断是否验证成功
+            if (result==SMSSDK.RESULT_COMPLETE){
+                //获取数据data
+                HashMap&lt;String,Object&gt; map=(HashMap&lt;String,Object&gt;)data;
+                //国家信息
+                String country=(String)map.get("country");
+                //手机号信息
+                String phone=(String)map.get("phone");
+                submitUserInfo(country,phone);  //提交用户信息
+            }
+            }
+        });
+        //显示注册界面
+        registerPage.show(MainActivity.this);
+    }
+});
+</code></pre>
+
+<p>下面是submitUserInfo具体实现：</p>
+
+<pre><code>public void submitUserInfo(String country,String phone){
+    Random random=new Random();
+    String uid=Math.abs(random.nextInt())+"";
+    String nickName="test";
+    SMSSDK.submitUserInfo(uid,nickName,null,country,phone);
+}
+</code></pre>
+
+<p>通过调用submitUserInfo方法向我们的服务器提交用户资料，提交的资料将当作“通信录好友”功能的建议资料。
+现在短信验证注册的功能已经实现了，用的是SDK的GUI界面。</p>
+
+<h2>
+<a id="二-无gui接口调用实现短信验证登录" class="anchor" href="#%E4%BA%8C-%E6%97%A0gui%E6%8E%A5%E5%8F%A3%E8%B0%83%E7%94%A8%E5%AE%9E%E7%8E%B0%E7%9F%AD%E4%BF%A1%E9%AA%8C%E8%AF%81%E7%99%BB%E5%BD%95" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>二. 无GUI接口调用实现短信验证登录</h2>
+
+<p>这里用到两个Activity，一个输入手机号获取验证码，一个用来提交验证码登录。两个Activity的布局文件都是一个EditView和一个Button。
+第一个Activity：</p>
+
+<pre><code>public class MyRegisterActivity extends AppCompatActivity {
+    String phone;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.register);
+        //初始化
+        SMSSDK.initSDK(this, Const.APPKEY, Const.APPSECRET);
+        EventHandler eh=new EventHandler(){
+            @Override
+            public void afterEvent(int event, int result, Object data) {
+            if (result == SMSSDK.RESULT_COMPLETE) {
+                //回调完成
+                if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
+                    //提交验证码成功
+                }else if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE){
+                    //获取验证码成功
+                    //开启另一个Activity（输入验证码）
+                    Intent intent=new Intent(MyRegisterActivity.this,ValidateActivity.class);
+                    intent.putExtra("phone",phone); //  提交验证码需要手机号
+                    startActivity(intent);
+                }else if (event ==SMSSDK.EVENT_GET_SUPPORTED_COUNTRIES){
+                    //返回支持发送验证码的国家列表
+                }
+            }else{
+                try {
+                    JSONObject a = new JSONObject(((Throwable)data).getMessage());
+                    System.out.println(a.get("detail"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                ((Throwable)data).printStackTrace();
+            }
+            }
+        };
+        SMSSDK.registerEventHandler(eh); //注册短信回调
+        Button button=(Button)findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            phone=((EditText)findViewById(R.id.text_phone)).getText().toString();
+            SMSSDK.getVerificationCode(Const.CHINA,phone);  //获取验证码
+            }
+        });
+    }
+}
+</code></pre>
+
+<p>第二个Activity：</p>
+
+<pre><code>public class ValidateActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.validate);
+        Intent intent=getIntent();
+        final String phone=intent.getStringExtra("phone");
+        //初始化
+        SMSSDK.initSDK(this, Const.APPKEY, Const.APPSECRET);
+        EventHandler eh=new EventHandler(){
+            @Override
+            public void afterEvent(int event, int result, Object data) {
+            if (result == SMSSDK.RESULT_COMPLETE) {
+                //回调完成
+                if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
+                    //提交验证码成功
+                    //TODO 在这里做登录操作
+                    System.out.println("------------success");
+                }
+            }else{
+                try {
+                    //获取错误信息
+                    JSONObject a = new JSONObject(((Throwable)data).getMessage());
+                    String information=a.get("detail").toString();
+                    System.out.println(information);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                ((Throwable)data).printStackTrace();
+            }
+            }
+        };
+        SMSSDK.registerEventHandler(eh); //注册短信回调
+        Button button=(Button)findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String validation=((EditText)findViewById(R.id.text_validate)).getText().toString();
+                SMSSDK.submitVerificationCode(Const.CHINA,phone,validation);    //提交验证码
+            }
+        });
+    }
+}
+</code></pre>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/nightynight/Android.MessageValidate">Android.messagevalidate</a> is maintained by <a href="https://github.com/nightynight">nightynight</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
